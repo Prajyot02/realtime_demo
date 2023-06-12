@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "25926263469",
+    "firebase_url": "https://hiswillquiz-default-rtdb.firebaseio.com",
+    "project_id": "hiswillquiz",
+    "storage_bucket": "hiswillquiz.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25926263469:android:8ec1ada631358370f99c24",
+        "android_client_info": {
+          "package_name": "com.example.realtime_demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "25926263469-vh5mic0sh5eb0d9dlcmc75p06rahs900.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZEKGqmVs3eTRXG7lRDmlxH7Xoer7UdJM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "25926263469-vh5mic0sh5eb0d9dlcmc75p06rahs900.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
