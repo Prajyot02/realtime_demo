@@ -115,7 +115,12 @@ class _ContestCarouselWidgetState extends State<ContestCarouselWidget> {
             child: Hero(
               tag: contestdata.contestId,
               child: GestureDetector(
-                onTap: () =>{},
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ContestQuizScreen(contestId: contestdata.contestId)));
+                },
                 child:
                 Container(
                   width:400,

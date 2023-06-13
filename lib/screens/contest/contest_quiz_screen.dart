@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:realtime_demo/screens/result_screen.dart';
-
-import '../../models/user_model.dart';
-import '../../utils/quiztimer.dart';
 
 class QuestionDataHolder {
   static List questionDataList = [];
@@ -30,6 +29,22 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
   final _database = FirebaseDatabase.instance.ref();
   late String contestId;
 
+
+  List quizListData = QuestionDataHolder.questionDataList;
+
+  final _pageController = PageController(initialPage: 0,keepPage: true,);
+  int questionINdex = 0;
+
+  int userPercentage = 0;
+  int wrongQ = 0;
+  int ommitedQuestion = 0;
+  int totalRight = 0;
+
+  late Timer _timer;
+  int _start = 10;
+  int _time = 0;
+
+
   void _activateListners() {
     _database.child('contestInfo').child('$contestId').child('questions').onValue.listen((event) {
       print('ContestId is: $contestId');
@@ -37,12 +52,9 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
       if(dynamicValue is Map){
         final data = Map<String, dynamic>.from(dynamicValue);
         // print('This is data : $data');
-
-
         List<Map<String, dynamic>> questionDataList = [];
         // data.forEach((key, value) {
         //
-
         // });
         questionDataList.clear();
         data.forEach((questionId, questionData) {
@@ -102,7 +114,6 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
     contestId = widget.contestId;
     _activateListners();
     startTimer();
-
   }
 
   String convertNumberToAlphabet(int number) {
@@ -181,19 +192,6 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
     }
 
 
-
-
-
-    List quizListData = QuestionDataHolder.questionDataList;
-
-    final _pageController = PageController(initialPage: 0);
-    int questionINdex = 0;
-
-    int userPercentage = 0;
-    int wrongQ = 0;
-    int ommitedQuestion = 0;
-    int totalRight = 0;
-
     quizResult(context) {
       userPercentage = 0;
       wrongQ = 0;
@@ -225,19 +223,32 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
           ),
               (Route<dynamic> route) => false);
     }
+
   void startTimer() {
     const onsec = Duration(seconds: 1);
     Timer timer = Timer.periodic(onsec, (timer) {
       if(_start == 0 ) {
         setState(() {
-          timer.cancel();
+          handleSubmitButton();
+          quizResult(context);
         });
-      }else{
+      }else {
         setState(() {
           _start--;
         });
       }
     });
+  }
+
+
+  void handleSubmitButton() {
+    int currentTime = _start; // Get the current value of _start
+    print('Current time: $currentTime');
+  }
+
+
+
+  void goToNextPage() {
   }
 
   @override
@@ -246,13 +257,10 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
     super.dispose();
   }
 
-
-  @override
-
-  late Timer _timer;
-  int _start = 1000;
-
     Widget build(BuildContext context) {
+
+      double width = MediaQuery. of(context). size. width ;
+      bool showFloatingButton = false;
       return Scaffold(
         backgroundColor:  Color(0xFF6D2359),
         // appBar: AppBar(
@@ -297,8 +305,19 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
                     ],
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+                  child: LinearPercentIndicator(
+                    width: width- 100,
+                    lineHeight: 8.0,
+                    percent: _start/100,
+                    barRadius: Radius.circular(10),
+                    progressColor: Color(0xFF6D2359),
+                  ),
+                ),
                 Expanded(
                   child: PageView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
                     controller: _pageController,
                     itemCount: quizListData.length,
                     onPageChanged: (page) {
@@ -391,6 +410,12 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
                                             quizListData[index]['is_answered'] =
                                             1;
                                           });
+                                          if (_time % quizListData.length == 0 ){
+                                            _pageController.nextPage(
+                                              duration: const Duration(milliseconds: 300),
+                                              curve: Curves.easeIn,
+                                            );
+                                          }
                                         } else {}
                                       },
                                       child: Row(
@@ -444,21 +469,27 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
             ),
           ),
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            if (questionINdex == quizListData.length - 1) {
-              print("Submit ");
-              quizResult(context);
-            } else {
-              print("ELSE PART");
-              _pageController.nextPage(
-                duration: const Duration(milliseconds: 100),
-                curve: Curves.easeIn,
-              );
-            }
-          },icon:Icon(Icons.skip_next_outlined),
-          label:
-          Text(questionINdex == quizListData.length - 1 ? "Submit" : "Next"),
+        floatingActionButton: Visibility(
+          visible: showFloatingButton ,
+          child: FloatingActionButton.extended(            
+            onPressed: () {
+              showFloatingButton = (questionINdex == quizListData.length - 2 ? true : false);
+              if (questionINdex == quizListData.length - 1) {
+                print("Submit ");
+                handleSubmitButton();
+                quizResult(context);
+                dispose();
+              // } else {
+              //   print("ELSE PART");
+              //   _pageController.nextPage(
+              //     duration: const Duration(milliseconds: 300),
+              //     curve: Curves.easeIn,
+              //   );
+              }
+            },icon:Icon(Icons.skip_next_outlined),
+            label:
+            Text(questionINdex == quizListData.length - 1 ? "Submit" : '')  ,
+          ),
         ),
       );
     }
