@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -237,7 +239,6 @@ class _QuizSectionQuizScreenState extends State<QuizSectionQuizScreen> {
 
   Widget build(BuildContext context) {
 
-    QuizTimer quizTimer = QuizTimer();
 
 
     return Scaffold(

@@ -24,6 +24,3 @@ class ContestDataHolder {
 class quizSectionDataHolder {
   static List<Map<String, dynamic>> quizSectionDataList = [];
 }
-
-// Now you can use the contestDataModels list with the spread operator (...) inside the map() function:
-

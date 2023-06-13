@@ -5,14 +5,14 @@ import 'package:realtime_demo/models/contest_model.dart';
 
 import '../quiz/contest_carousel.dart';
 
-class CarouselHomeScreen extends StatefulWidget {
-  const CarouselHomeScreen({Key? key}) : super(key: key);
+class ContestCarouselWidget extends StatefulWidget {
+  const ContestCarouselWidget({Key? key}) : super(key: key);
 
   @override
-  _CarouselHomeScreenState createState() => _CarouselHomeScreenState();
+  _ContestCarouselWidgetState createState() => _ContestCarouselWidgetState();
 }
 
-class _CarouselHomeScreenState extends State<CarouselHomeScreen> {
+class _ContestCarouselWidgetState extends State<ContestCarouselWidget> {
   late PageController _pageController;
   int _currentPage = 0;
 
@@ -115,12 +115,7 @@ class _CarouselHomeScreenState extends State<CarouselHomeScreen> {
             child: Hero(
               tag: contestdata.contestId,
               child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ContestQuizScreen(contestId: contestdata.contestId)));
-                },
+                onTap: () =>{},
                 child:
                 Container(
                   width:400,

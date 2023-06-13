@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:realtime_demo/screens/result_screen.dart';
@@ -34,9 +36,8 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
       final dynamicValue = event.snapshot.value;
       if(dynamicValue is Map){
         final data = Map<String, dynamic>.from(dynamicValue);
-        print('This is data : $data');
+        // print('This is data : $data');
 
-        List<Question> questions = [];
 
         List<Map<String, dynamic>> questionDataList = [];
         // data.forEach((key, value) {
@@ -44,7 +45,6 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
 
         // });
         questionDataList.clear();
-        print('dynamic value is :$dynamicValue');
         data.forEach((questionId, questionData) {
           final correctOption = questionData['correctOption'] as int;
           final option1 = questionData['option1'] as String;
@@ -54,9 +54,9 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
           final question = questionData['question'] as String;
           final audioUrl = questionData['audioUrl'] as String;
           final imageUrl = questionData['imageUrl'] as String;
-          print('question ID: $questionId');
-          print('question: $question');
-          print('correctOption: $correctOption');
+          // print('question ID: $questionId');
+          // print('question: $question');
+          // print('correctOption: $correctOption');
           final formattedData = {
             "questionId": questionId,
             "correctOption": correctOption as int,
@@ -76,9 +76,9 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
 
         setState(() {
           QuestionDataHolder.questionDataList = mytransformData;
-          print(QuestionDataHolder.questionDataList);
+          // print(QuestionDataHolder.questionDataList);
         });
-        print(questionDataList);
+        // print(questionDataList);
       }else{
         print('THis data is not map');
       }
@@ -101,6 +101,7 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
     super.initState();
     contestId = widget.contestId;
     _activateListners();
+    startTimer();
 
   }
 
@@ -224,22 +225,40 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
           ),
               (Route<dynamic> route) => false);
     }
+  void startTimer() {
+    const onsec = Duration(seconds: 1);
+    Timer timer = Timer.periodic(onsec, (timer) {
+      if(_start == 0 ) {
+        setState(() {
+          timer.cancel();
+        });
+      }else{
+        setState(() {
+          _start--;
+        });
+      }
+    });
+  }
 
-    @override
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+
+  @override
+
+  late Timer _timer;
+  int _start = 1000;
 
     Widget build(BuildContext context) {
-
-      QuizTimer quizTimer = QuizTimer();
-
-
-
-
       return Scaffold(
         backgroundColor:  Color(0xFF6D2359),
         // appBar: AppBar(
         // ),
         body: Padding(
-          padding: const EdgeInsets.only(top: 100,left: 20,right: 20),
+          padding: const EdgeInsets.only(top: 100,left: 20,right: 20,bottom: 100 ),
           child: Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
@@ -268,7 +287,7 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
                         ),
                       ),
                       Text(
-                        "Coins/${quizListData.length}",
+                        "$_start",
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

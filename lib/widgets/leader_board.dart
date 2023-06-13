@@ -65,8 +65,6 @@ class _LeaderBoardCardState extends State<LeaderBoardCard> {
 
   @override
   Widget build(BuildContext context) {
-   getLeaders(3);
-
     return
       Padding(
         padding: const EdgeInsets.only(left: 15,),

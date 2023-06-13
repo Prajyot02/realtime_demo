@@ -57,7 +57,7 @@ class _HomePageState extends State<HomePage> {
               ElevatedButton(onPressed: (){
                 Navigator.push(
                     context,MaterialPageRoute(
-                  builder: (context)=> CarouselHomeScreen(),
+                  builder: (context)=> ContestCarouselWidget(),
                 )
                 );
               },
@@ -89,7 +89,7 @@ class _HomePageState extends State<HomePage> {
               ElevatedButton(onPressed: (){
                 Navigator.push(
                     context,MaterialPageRoute(
-                  builder: (context)=> CarouselHomeScreen(),
+                  builder: (context)=> ContestCarouselWidget(),
                 )
                 );
               },

@@ -74,10 +74,6 @@ class _ReadExamplesState extends State<ReadExamples> {
         });
         print(orders);
 
-        // data.forEach((key, value) {
-        //
-
-        // });
         print('dynamic value is :$dynamicValue');
         data.forEach((orderId, orderData) {
           final price = orderData['price'] as double;
@@ -86,29 +82,11 @@ class _ReadExamplesState extends State<ReadExamples> {
           print('Price: $price');
           print('Description: $description');
 
-          // orderData.forEach((key,value){
-          //   orders.add(orderData as Order);
-          // });
-          //
-          // final newOrder = Order(
-          //     orderId: orderData['orderId']as String,
-          //     customer: orderData['customer']as String,
-          //     description: orderData['description']as String,
-          //     price: orderData['price'] as double,
-          //     time: orderData['time'] as int,
-          // );
-          // orders.add(Order.fromRTDB(orderId, orderData));
-          // print(orders);
         });
         print('Executed');
       }else{
         print('THis data is not map');
       }
-      // final data  = new Map<String,dynamic>.from (event.snapshot.value);
-      // final description = data ['description'] as String ;
-      // setState(() {
-      //   _displayText = 'Todays spcecial is : $description';
-      // });
     });
 
 
@@ -138,28 +116,6 @@ class _ReadExamplesState extends State<ReadExamples> {
               Text('Price is : $_displayPrice'),
               Text('$_displayTextString'),
               SizedBox(height: 50,),
-              // StreamBuilder (
-              //     stream : _database.child('orders')
-              //         .orderByKey()
-              //         .limitToLast(10)
-              //         .onValue,
-              //   builder: (context, AsyncSnapshot snapshot) {
-              //     final orderList = <ListTile>[];
-              //     if (snapshot.hasData){
-              //       final myOrders = Map<String,dynamic>. from(
-              //           (snapshot.data! as Event).snapshot.value as Map<String,dynamic>);
-              //       myOrders.forEach((key, value) {
-              //         final nextOrder = Map<String,dynamic>.from(value);
-              //         final orderTile = ListTile(
-              //           leading: Icon(Icons.local_cafe),
-              //           title: Text(nextOrder['description']),
-              //           subtitle: Text(nextOrder['customerName'])
-              //         orderList.add(orderTile);
-              //       });
-              //     }
-              //     return SizedBox(child: Text('$_displayTextString'),);
-              //   },
-              // )
             ],
           ),
         ),
