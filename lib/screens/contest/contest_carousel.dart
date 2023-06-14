@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:realtime_demo/screens/contest/contest_intro_screen.dart';
-import 'package:realtime_demo/screens/contest/contest_quiz_screen.dart';
 import 'package:realtime_demo/models/contest_model.dart';
-
-import '../quiz/contest_carousel.dart';
 
 class ContestCarouselWidget extends StatefulWidget {
   const ContestCarouselWidget({Key? key}) : super(key: key);
@@ -14,10 +11,13 @@ class ContestCarouselWidget extends StatefulWidget {
 }
 
 class _ContestCarouselWidgetState extends State<ContestCarouselWidget> {
+
+
+
+  // bool isDataFetched = false;
   late PageController _pageController;
   int _currentPage = 0;
 
-  final List<Map<String, dynamic>> contestData = ContestDataHolder.contestDataList;
 
 
   @override
@@ -47,9 +47,9 @@ class _ContestCarouselWidgetState extends State<ContestCarouselWidget> {
 
   @override
   Widget build(BuildContext context) {
+
+    final List<Map<String, dynamic>> contestData = ContestDataHolder.contestDataList;
     print(contestData);
-
-
 
     List<ContestDataModel> newcontestdataList =contestData.map((data) {
       return ContestDataModel(
@@ -117,10 +117,10 @@ class _ContestCarouselWidgetState extends State<ContestCarouselWidget> {
               tag: contestdata.contestId,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ContestIntroScreen(contestId: contestdata.contestId, description:  contestdata.description , displayName: contestdata.displayName,)));
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (context) => ContestIntroScreen(contestId: contestdata.contestId, description:  contestdata.description , displayName: contestdata.displayName,)));
                 },
                 child:
                 Container(

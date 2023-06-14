@@ -350,7 +350,8 @@ class _ContestIntroScreenState extends State<ContestIntroScreen> {
                   child: Container(
                     height: 327,
                     decoration: BoxDecoration(
-                        color: Color(0xCFC7C7C7),
+                        color: Color(0xDDFFFFFF),
+                        border: Border.all(color: Colors.black26),
                         borderRadius: BorderRadius.circular(14)),
                     child: SingleChildScrollView(
 

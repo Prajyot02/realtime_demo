@@ -365,7 +365,8 @@ class _QuizIntroScreenState extends State<QuizIntroScreen> {
                   child: Container(
                     height: 350,
                     decoration: BoxDecoration(
-                        color: Color(0xCFC7C7C7),
+                      border: Border.all(color: Colors.black26),
+                        color: Color(0xDDFFFFFF),
                         borderRadius: BorderRadius.circular(14)),
                     child: SingleChildScrollView(
 

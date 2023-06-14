@@ -22,6 +22,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
 
   final User? user=Auth().currentUser;
   final _database = FirebaseDatabase.instance.ref();
+  bool isDataFetched = false;
 
   // void updateCoins(String uid, int newCoins) {
   //   DatabaseReference userRef = FirebaseDatabase.instance.ref().child('userInfo').child(uid);
@@ -49,7 +50,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
 
   }
 
-  void _activateListerns() {
+  void _activateListeners() {
     _database.child('quizSection').onValue.listen((event) {
       final dynamicValue = event.snapshot.value;
       if(dynamicValue is Map){
@@ -180,6 +181,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
         print('THis data is not map');
       }
     });
+    isDataFetched = true;
   }
 
 
@@ -197,8 +199,6 @@ class _DashBoardPageState extends State<DashBoardPage> {
     // Update the new value in the database
     await userRef.set(newCoins);
   }
-
-  final List<Map<String, dynamic>> quizSectionData = quizSectionDataHolder.quizSectionDataList;
 
   Color hexToColor(String hexCode) {
     String x = hexCode.replaceAll("Color(0x", "");
@@ -246,12 +246,27 @@ class _DashBoardPageState extends State<DashBoardPage> {
   void initState() {
     super.initState();
     getUserInfo(user!.uid);
-    _activateListerns();
+    _activateListeners();
   }
+
+
+  Future<void> fetchData() async {
+     _activateListeners();
+    setState(() {
+      isDataFetched = true;
+    });
+  }
+
 
 
   @override
   Widget build(BuildContext context) {
+
+    if (!isDataFetched) {
+      // If the data has not been fetched yet, call fetchTopUsers() to retrieve it
+     return Center(child: CircularProgressIndicator()); // Show a loading indicator
+    }
+    final List<Map<String, dynamic>> quizSectionData = quizSectionDataHolder.quizSectionDataList;
 
     int numberOfIds = quizSectionData.length;
 

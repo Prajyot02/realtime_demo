@@ -300,6 +300,9 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
 
       double width = MediaQuery. of(context). size. width ;
       bool showFloatingButton = false;
+      bool isImagePresent = false;
+      bool isAudioPresent = false;
+
       return WillPopScope(
         onWillPop:_onBackPressed ,
         child: Scaffold(
@@ -370,141 +373,183 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
                         );
                       },
                       itemBuilder: (context, index) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Padding(
-                                padding: const EdgeInsets.all(35.0),
-                                child: Text(
-                                  quizListData[index]['title'],
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF6D2359)
+                        if(quizListData[index]['imageUrl']!="") {
+                          isImagePresent = true;
+                        };
+                        if(quizListData[index]['audioUrl']!="") {
+                          isAudioPresent = true;
+                        };
+                        return SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(35.0),
+                                  child: Text(
+                                    quizListData[index]['title'],
+                                    style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF6D2359)
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            quizListData[index]
-                            ['is_answer_status_right_wrong_omitted'] ==
-                                2
-                                ? Padding(
-                              padding: const EdgeInsets.only(left: 30),
-                              child: Text(
-                                "Sorry : Right answer is -> ${quizListData[index]['answer']} ",
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
+                              const SizedBox(
+                                height: 20,
                               ),
-                            )
-                                : const SizedBox(),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            ...quizListData[index]['options']
-                                .map(
-                                  (data) => Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 5),
-                                child: SizedBox(
-                                  width: double.infinity,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 30,right: 30),
-                                    child: Card(
-                                      elevation: 3,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      child: TextButton(
-                                        style: TextButton.styleFrom(
-                                          backgroundColor: Color(
-                                            int.parse(
-                                              data['color'],
+                              quizListData[index]
+                              ['is_answer_status_right_wrong_omitted'] ==
+                                  2
+                                  ? Padding(
+                                padding: const EdgeInsets.only(left: 30),
+                                child: Text(
+                                  "Sorry : Right answer is -> ${quizListData[index]['answer']} ",
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              )
+                                  : const SizedBox(),
+                              Visibility(
+                                child: Center(
+                                  child: Container(
+                                    child: quizListData[index]['imageUrl'] != ""
+                                        ? Image.network(
+                                      quizListData[index]['imageUrl'],
+                                      fit: BoxFit.fill,
+                                    )
+                                        : SizedBox(height: 10), // Empty SizedBox if imgurl is null
+
+                                    height: 150,
+                                    width: 200,
+                                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                ),
+                                visible: isImagePresent,
+                              ),
+                              // Visibility(
+                              //   child: Center(
+                              //     child: Container(
+                              //       child: quizListData[index]['audioUrl'] != ""
+                              //           ? Image.network(
+                              //         quizListData[index]['audioUrl'],
+                              //         fit: BoxFit.fill,
+                              //       )
+                              //           : SizedBox(height: 10), // Empty SizedBox if imgurl is null
+                              //
+                              //       height: 150,
+                              //       width: 200,
+                              //       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                              //     ),
+                              //   ),
+                              //   visible: isAudioPresent,
+                              // ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              ...quizListData[index]['options']
+                                  .map(
+                                    (data) => Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 5),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 30,right: 30),
+                                      child: Card(
+                                        elevation: 3,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
+                                        child: TextButton(
+                                          style: TextButton.styleFrom(
+                                            backgroundColor: Color(
+                                              int.parse(
+                                                data['color'],
+                                              ),
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(15),
                                             ),
                                           ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(15),
-                                          ),
-                                        ),
-                                        onPressed: () {
-                                          if (quizListData[index]['is_answered'] ==
-                                              0) {
-                                            setState(() {
-                                              if (data['option'] ==
-                                                  (quizListData[index]['answer'])
-                                              ) {
-                                                data['color'] = "0xFFEE5588";
-                                                quizListData[index][
-                                                'is_answer_status_right_wrong_omitted'] = 1;
-                                              } else {
-                                                data['color'] = "0xFFFF0000";
-                                                quizListData[index][
-                                                'is_answer_status_right_wrong_omitted'] = 2;
+                                          onPressed: () {
+                                            if (quizListData[index]['is_answered'] ==
+                                                0) {
+                                              setState(() {
+                                                if (data['option'] ==
+                                                    (quizListData[index]['answer'])
+                                                ) {
+                                                  data['color'] = "0xFFEE5588";
+                                                  quizListData[index][
+                                                  'is_answer_status_right_wrong_omitted'] = 1;
+                                                } else {
+                                                  data['color'] = "0xFFFF0000";
+                                                  quizListData[index][
+                                                  'is_answer_status_right_wrong_omitted'] = 2;
+                                                }
+                                                quizListData[index]['is_answered'] =
+                                                1;
+                                              });
+                                              if(questionINdex == quizListData.length - 1){
+                                                quizResult(context);
                                               }
-                                              quizListData[index]['is_answered'] =
-                                              1;
-                                            });
-                                            if(questionINdex == quizListData.length - 1){
-                                              quizResult(context);
+                                              else{
+                                                _pageController.nextPage(
+                                                  duration: const Duration(milliseconds: 300),
+                                                  curve: Curves.easeIn,
+                                                );
+                                              }
                                             }
-                                            else{
-                                              _pageController.nextPage(
-                                                duration: const Duration(milliseconds: 300),
-                                                curve: Curves.easeIn,
-                                              );
-                                            }
-                                          }
-                                        },
-                                        child: Row(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  vertical: 0),
-                                              child: Container(
-                                                height: 40,
-                                                width: 40,
-                                                decoration: BoxDecoration(
-                                                  color: Color(
-                                                    int.parse(
-                                                      data['color'],
+                                          },
+                                          child: Row(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(
+                                                    vertical: 0),
+                                                child: Container(
+                                                  height: 40,
+                                                  width: 40,
+                                                  decoration: BoxDecoration(
+                                                    color: Color(
+                                                      int.parse(
+                                                        data['color'],
+                                                      ),
+                                                    ),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      data['option'].toUpperCase(),
+                                                      style: const TextStyle(
+                                                          color: Colors.black),
                                                     ),
                                                   ),
-                                                  shape: BoxShape.circle,
                                                 ),
-                                                child: Center(
-                                                  child: Text(
-                                                    data['option'].toUpperCase(),
-                                                    style: const TextStyle(
-                                                        color: Colors.black),
+                                              ),
+                                              Flexible(
+                                                child: Text(
+                                                  data['value'],
+                                                  style: const TextStyle(
+                                                    color: Colors.black,
                                                   ),
                                                 ),
-                                              ),
-                                            ),
-                                            Flexible(
-                                              child: Text(
-                                                data['value'],
-                                                style: const TextStyle(
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            )
-                                          ],
+                                              )
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            )
-                                .toList(),
-                          ],
+                              )
+                                  .toList(),
+                            ],
+                          ),
                         );
                       },
                     ),
