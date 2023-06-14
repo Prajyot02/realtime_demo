@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:realtime_demo/screens/contest/carousel_home.dart';
+import 'package:realtime_demo/screens/contest/contest_carousel.dart';
+import 'package:realtime_demo/screens/quiz/quiz_intro.dart';
 import 'package:realtime_demo/screens/quiz/quiz_section_quiz_screen.dart';
 import 'package:realtime_demo/widgets/leader_board.dart';
 import '../models/contest_model.dart';
@@ -258,6 +259,8 @@ class _DashBoardPageState extends State<DashBoardPage> {
     double height = MediaQuery. of(context). size. height ;
 
     String selectedQuizSectionId;
+    String description;
+    String displayName;
 
     return Scaffold(
       // appBar: AppBar(
@@ -397,11 +400,13 @@ class _DashBoardPageState extends State<DashBoardPage> {
                           child: GestureDetector(
                             onTap: () {
                               selectedQuizSectionId = e['quizSectionId'];
+                              description = e['description'];
+                              displayName = e['name'];
 
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => QuizSectionQuizScreen(quizSectionId: selectedQuizSectionId),
+                                  builder: (context) => QuizIntroScreen(quizSectionId: selectedQuizSectionId, description: description, displayName: displayName,),
                                 ),
                               );
                             },

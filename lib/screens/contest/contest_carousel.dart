@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:realtime_demo/screens/contest/contest_intro_screen.dart';
 import 'package:realtime_demo/screens/contest/contest_quiz_screen.dart';
 import 'package:realtime_demo/models/contest_model.dart';
 
@@ -119,7 +120,7 @@ class _ContestCarouselWidgetState extends State<ContestCarouselWidget> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ContestQuizScreen(contestId: contestdata.contestId)));
+                          builder: (context) => ContestIntroScreen(contestId: contestdata.contestId, description:  contestdata.description , displayName: contestdata.displayName,)));
                 },
                 child:
                 Container(
@@ -188,7 +189,7 @@ class _ContestCarouselWidgetState extends State<ContestCarouselWidget> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ContestQuizScreen(contestId: contestdata.contestId)));
+                                    builder: (context) => ContestIntroScreen(contestId: contestdata.contestId, description:  contestdata.description, displayName: contestdata.displayName, )));
                           },
                           child: Container(
                             width: 88,

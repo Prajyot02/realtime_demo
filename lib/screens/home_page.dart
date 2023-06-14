@@ -4,7 +4,7 @@ import 'package:realtime_demo/screens/quiz/contest_carousel.dart';
 import 'package:realtime_demo/screens/quiz/quiz_section.dart';
 import 'package:realtime_demo/screens/quiz/random_contest.dart';
 import 'package:realtime_demo/screens/read_examples.dart';
-import 'package:realtime_demo/screens/contest/carousel_home.dart';
+import 'package:realtime_demo/screens/contest/contest_carousel.dart';
 import 'package:realtime_demo/screens/test/test_random.dart';
 import 'package:realtime_demo/screens/write_examples.dart';
 

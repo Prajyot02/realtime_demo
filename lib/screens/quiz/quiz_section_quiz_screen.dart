@@ -6,18 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:realtime_demo/screens/result_screen.dart';
 
+import '../../models/contest_model.dart';
 import '../../models/user_model.dart';
 import '../../utils/quiztimer.dart';
+import '../contest/contest_quiz_screen.dart';
 
-class QuestionDataHolder {
-  static List questionDataList = [];
-  late final String quizSectionId;
-}
 
 
 class QuizSectionQuizScreen extends StatefulWidget {
 
-  ValueNotifier<List<Map<String, dynamic>>> questionDataList= ValueNotifier<List<Map<String, dynamic>>>([{}]);
+  // ValueNotifier<List<Map<String, dynamic>>> questionDataList= ValueNotifier<List<Map<String, dynamic>>>([{}]);
 
   final String quizSectionId;
 

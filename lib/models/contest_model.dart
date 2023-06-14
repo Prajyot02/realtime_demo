@@ -13,7 +13,6 @@ class ContestDataModel {
        this.imageUrl,
        this.color,
       );
-
 }
 
 
@@ -23,4 +22,11 @@ class ContestDataHolder {
 
 class quizSectionDataHolder {
   static List<Map<String, dynamic>> quizSectionDataList = [];
+}
+
+
+
+class QuestionDataHolder {
+  static List questionDataList = [];
+  late final String quizSectionId;
 }

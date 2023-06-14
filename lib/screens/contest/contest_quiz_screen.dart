@@ -6,6 +6,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:realtime_demo/screens/result_screen.dart';
 
+import '../../models/contest_model.dart';
 import '../quiz/quiz_section_quiz_screen.dart';
 
 
@@ -131,7 +132,6 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
   void initState(){
     super.initState();
     contestId = widget.contestId;
-    _activateListners();
     startTimer();
   }
 
@@ -554,4 +554,3 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
       );
     }
   }
-
