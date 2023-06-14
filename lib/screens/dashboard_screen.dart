@@ -384,6 +384,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
               padding: const EdgeInsets.only(left: 15,top: 2),
               child: SizedBox(
                 height: 208 * numberOfIds +10,
+                width: width,
                 child: GridView.count(
                   crossAxisCount: 2,
                   childAspectRatio: 1.5,

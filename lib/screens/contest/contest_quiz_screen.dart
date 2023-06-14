@@ -6,10 +6,8 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:realtime_demo/screens/result_screen.dart';
 
-class QuestionDataHolder {
-  static List questionDataList = [];
-  late final String contestId;
-}
+import '../quiz/quiz_section_quiz_screen.dart';
+
 
 
 class ContestQuizScreen extends StatefulWidget {
@@ -41,8 +39,9 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
   int totalRight = 0;
 
   late Timer _timer;
-  int _start = 10;
-  int _time = 0;
+  int _start = 90 ;
+  int _quizTimerStart = 30 ;
+  int _duration = 30;
 
 
   void _activateListners() {
@@ -103,6 +102,26 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
     //   });
     // });
 
+  }
+
+  Future<bool> _onBackPressed() async {
+    return await showDialog(
+        context: context, builder: (context) =>
+        AlertDialog(
+          title: const Text('You are about to submit test'),
+          content: const Text('By clicking Confirm your marked answers will only get considered'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => quizResult(context),
+              child: const Text('Confirm'),
+            ),
+          ],
+        )
+    );
   }
 
 
@@ -232,9 +251,34 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
           handleSubmitButton();
           quizResult(context);
         });
-      }else {
+      }
+      else
+      {
         setState(() {
           _start--;
+        });
+      }
+      if(_start % _duration==0){
+      print(quizListData.length);
+      print(_start);
+      _pageController.nextPage(
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.easeIn,
+      );
+      }
+    });
+  }
+
+  void eachQuizStartTimer() {
+    const onsec = Duration(seconds: 1);
+    Timer timer = Timer.periodic(onsec, (timer) {
+      if(_quizTimerStart == 0 ) {
+
+      }
+      else
+      {
+        setState(() {
+          _quizTimerStart--;
         });
       }
     });
@@ -247,13 +291,8 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
   }
 
 
-
-  void goToNextPage() {
-  }
-
   @override
   void dispose() {
-    _timer.cancel();
     super.dispose();
   }
 
@@ -261,235 +300,256 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
 
       double width = MediaQuery. of(context). size. width ;
       bool showFloatingButton = false;
-      return Scaffold(
-        backgroundColor:  Color(0xFF6D2359),
-        // appBar: AppBar(
-        // ),
-        body: Padding(
-          padding: const EdgeInsets.only(top: 100,left: 20,right: 20,bottom: 100 ),
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            color: Color(0xFFFFFFFF),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 30),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Text("Level 1",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF6D2359),
-                        ),),
-                      Text(
-                        "${questionINdex + 1}/${quizListData.length}",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFCB0000),
+      return WillPopScope(
+        onWillPop:_onBackPressed ,
+        child: Scaffold(
+          backgroundColor:  Color(0xFF6D2359),
+          // appBar: AppBar(
+          // ),
+          body: Padding(
+            padding: const EdgeInsets.only(top: 100,left: 20,right: 20,bottom: 100 ),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              color: Color(0xFFFFFFFF),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text("Level 1",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF6D2359),
+                          ),),
+                        Text(
+                          "${questionINdex + 1}/${quizListData.length}",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFCB0000),
+                          ),
                         ),
-                      ),
-                      Text(
-                        "$_start",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF6D2359),
+                        Text(
+                          "$_start",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF6D2359),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
-                  child: LinearPercentIndicator(
-                    width: width- 100,
-                    lineHeight: 8.0,
-                    percent: _start/100,
-                    barRadius: Radius.circular(10),
-                    progressColor: Color(0xFF6D2359),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+                    child: LinearPercentIndicator(
+                      width: width- 100,
+                      lineHeight: 8.0,
+                      percent: _start/100,
+                      barRadius: Radius.circular(10),
+                      progressColor: Color(0xFF6D2359),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: PageView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    controller: _pageController,
-                    itemCount: quizListData.length,
-                    onPageChanged: (page) {
-                      print("Current page $page");
-                      setState(
-                            () {
-                          questionINdex = page;
-                        },
-                      );
-                    },
-                    itemBuilder: (context, index) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Padding(
-                              padding: const EdgeInsets.all(35.0),
-                              child: Text(
-                                quizListData[index]['title'],
-                                style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF6D2359)
+                  Expanded(
+                    child: PageView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      controller: _pageController,
+                      itemCount: quizListData.length,
+                      onPageChanged: (page) {
+                        print("Current page $page");
+                        setState(
+                              () {
+                            questionINdex = page;
+                          },
+                        );
+                      },
+                      itemBuilder: (context, index) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Padding(
+                                padding: const EdgeInsets.all(35.0),
+                                child: Text(
+                                  quizListData[index]['title'],
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF6D2359)
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          quizListData[index]
-                          ['is_answer_status_right_wrong_omitted'] ==
-                              2
-                              ? Padding(
-                            padding: const EdgeInsets.only(left: 30),
-                            child: Text(
-                              "Sorry : Right answer is -> ${quizListData[index]['answer']} ",
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
+                            const SizedBox(
+                              height: 20,
                             ),
-                          )
-                              : const SizedBox(),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          ...quizListData[index]['options']
-                              .map(
-                                (data) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 30,right: 30),
-                                  child: Card(
-                                    elevation: 3,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    child: TextButton(
-                                      style: TextButton.styleFrom(
-                                        backgroundColor: Color(
-                                          int.parse(
-                                            data['color'],
+                            quizListData[index]
+                            ['is_answer_status_right_wrong_omitted'] ==
+                                2
+                                ? Padding(
+                              padding: const EdgeInsets.only(left: 30),
+                              child: Text(
+                                "Sorry : Right answer is -> ${quizListData[index]['answer']} ",
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                                : const SizedBox(),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            ...quizListData[index]['options']
+                                .map(
+                                  (data) => Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 5),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 30,right: 30),
+                                    child: Card(
+                                      elevation: 3,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: Color(
+                                            int.parse(
+                                              data['color'],
+                                            ),
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(15),
                                           ),
                                         ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(15),
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        if (quizListData[index]['is_answered'] ==
-                                            0) {
-                                          setState(() {
-                                            if (data['option'] ==
-                                                (quizListData[index]['answer'])
-                                            ) {
-                                              data['color'] = "0xFFEE5588";
-                                              quizListData[index][
-                                              'is_answer_status_right_wrong_omitted'] = 1;
-                                            } else {
-                                              data['color'] = "0xFFFF0000";
-                                              quizListData[index][
-                                              'is_answer_status_right_wrong_omitted'] = 2;
+                                        onPressed: () {
+                                          if (quizListData[index]['is_answered'] ==
+                                              0) {
+                                            setState(() {
+                                              if (data['option'] ==
+                                                  (quizListData[index]['answer'])
+                                              ) {
+                                                data['color'] = "0xFFEE5588";
+                                                quizListData[index][
+                                                'is_answer_status_right_wrong_omitted'] = 1;
+                                              } else {
+                                                data['color'] = "0xFFFF0000";
+                                                quizListData[index][
+                                                'is_answer_status_right_wrong_omitted'] = 2;
+                                              }
+                                              quizListData[index]['is_answered'] =
+                                              1;
+                                            });
+                                            if(questionINdex == quizListData.length - 1){
+                                              quizResult(context);
                                             }
-                                            quizListData[index]['is_answered'] =
-                                            1;
-                                          });
-                                          if (_time % quizListData.length == 0 ){
-                                            _pageController.nextPage(
-                                              duration: const Duration(milliseconds: 300),
-                                              curve: Curves.easeIn,
-                                            );
+                                            else{
+                                              _pageController.nextPage(
+                                                duration: const Duration(milliseconds: 300),
+                                                curve: Curves.easeIn,
+                                              );
+                                            }
                                           }
-                                        } else {}
-                                      },
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 0),
-                                            child: Container(
-                                              height: 40,
-                                              width: 40,
-                                              decoration: BoxDecoration(
-                                                color: Color(
-                                                  int.parse(
-                                                    data['color'],
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  vertical: 0),
+                                              child: Container(
+                                                height: 40,
+                                                width: 40,
+                                                decoration: BoxDecoration(
+                                                  color: Color(
+                                                    int.parse(
+                                                      data['color'],
+                                                    ),
+                                                  ),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    data['option'].toUpperCase(),
+                                                    style: const TextStyle(
+                                                        color: Colors.black),
                                                   ),
                                                 ),
-                                                shape: BoxShape.circle,
                                               ),
-                                              child: Center(
-                                                child: Text(
-                                                  data['option'].toUpperCase(),
-                                                  style: const TextStyle(
-                                                      color: Colors.black),
+                                            ),
+                                            Flexible(
+                                              child: Text(
+                                                data['value'],
+                                                style: const TextStyle(
+                                                  color: Colors.black,
                                                 ),
                                               ),
-                                            ),
-                                          ),
-                                          Flexible(
-                                            child: Text(
-                                              data['value'],
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          )
-                                        ],
+                                            )
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          )
-                              .toList(),
-                        ],
-                      );
-                    },
-                  ),
-                )
-              ],
+                            )
+                                .toList(),
+                          ],
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
-        ),
-        floatingActionButton: Visibility(
-          visible: showFloatingButton ,
-          child: FloatingActionButton.extended(            
-            onPressed: () {
-              showFloatingButton = (questionINdex == quizListData.length - 2 ? true : false);
-              if (questionINdex == quizListData.length - 1) {
-                print("Submit ");
-                handleSubmitButton();
-                quizResult(context);
-                dispose();
-              // } else {
-              //   print("ELSE PART");
-              //   _pageController.nextPage(
-              //     duration: const Duration(milliseconds: 300),
-              //     curve: Curves.easeIn,
-              //   );
-              }
-            },icon:Icon(Icons.skip_next_outlined),
-            label:
-            Text(questionINdex == quizListData.length - 1 ? "Submit" : '')  ,
-          ),
+          floatingActionButton:FloatingActionButton.extended(
+              onPressed: () {
+                showFloatingButton = (questionINdex == quizListData.length - 1 ? true : false);
+                if (questionINdex == quizListData.length - 1) {
+                  print("Submit ");
+                  handleSubmitButton();
+                  quizResult(context);
+                } else {
+
+                  showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('You are about to submit test'),
+                      content: const Text('By clicking Confirm your marked answers will only get considered'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, 'Cancel'),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => quizResult(context),
+                          child: const Text('Confirm'),
+                        ),
+                      ],
+                    ),
+                  );
+                  // print("ELSE PART");
+                  // _pageController.nextPage(
+                  //   duration: const Duration(milliseconds: 300),
+                  //   curve: Curves.easeIn,
+                  // );
+
+                }
+              },icon:Icon(Icons.skip_next_outlined),
+              label:
+              Text("Submit" )  ,
+            ),
         ),
       );
     }

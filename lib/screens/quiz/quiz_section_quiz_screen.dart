@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:realtime_demo/screens/result_screen.dart';
 
 import '../../models/user_model.dart';
@@ -20,6 +21,8 @@ class QuizSectionQuizScreen extends StatefulWidget {
 
   final String quizSectionId;
 
+
+
   QuizSectionQuizScreen({super.key, required this.quizSectionId});
 
   @override
@@ -30,6 +33,12 @@ class _QuizSectionQuizScreenState extends State<QuizSectionQuizScreen> {
 
   final _database = FirebaseDatabase.instance.ref();
   late String quizSectionId;
+
+  late Timer _timer;
+  int _start = 90 ;
+  int _quizTimerStart = 30 ;
+  int _duration = 30;
+
 
   List<dynamic> updateValue(List<dynamic> transformedData) {
     QuestionDataHolder.questionDataList = transformedData;
@@ -103,6 +112,25 @@ class _QuizSectionQuizScreenState extends State<QuizSectionQuizScreen> {
 
   }
 
+  Future<bool> _onBackPressed() async {
+    return await showDialog(
+        context: context, builder: (context) =>
+        AlertDialog(
+          title: const Text('You are about to submit test'),
+          content: const Text('By clicking Confirm your marked answers will only get considered'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => quizResult(context),
+              child: const Text('Confirm'),
+            ),
+          ],
+        )
+    );
+  }
 
 
 
@@ -111,7 +139,7 @@ class _QuizSectionQuizScreenState extends State<QuizSectionQuizScreen> {
     super.initState();
     quizSectionId = widget.quizSectionId;
     _activateListners();
-
+    startTimer();
   }
 
   String convertNumberToAlphabet(int number) {
@@ -190,9 +218,53 @@ class _QuizSectionQuizScreenState extends State<QuizSectionQuizScreen> {
   }
 
 
+  void startTimer() {
+    const onsec = Duration(seconds: 1);
+    Timer timer = Timer.periodic(onsec, (timer) {
+      if(_start == 0 ) {
+        setState(() {
+          handleSubmitButton();
+          quizResult(context);
+        });
+      }
+      else
+      {
+        setState(() {
+          _start--;
+        });
+      }
+      if(_start % _duration==0){
+        print(quizListData.length);
+        print(_start);
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeIn,
+        );
+      }
+    });
+  }
+  void eachQuizStartTimer() {
+    const onsec = Duration(seconds: 1);
+    Timer timer = Timer.periodic(onsec, (timer) {
+      if(_quizTimerStart == 0 ) {
+      }
+      else
+      {
+        setState(() {
+          _quizTimerStart--;
+        });
+      }
+    });
+  }
+
+void handleSubmitButton() {
+  int currentTime = _start; // Get the current value of _start
+  print('Current time: $currentTime');
+}
 
 
-  List quizListData = QuestionDataHolder.questionDataList;
+
+List quizListData = QuestionDataHolder.questionDataList;
 
   final _pageController = PageController(initialPage: 0);
   int questionINdex = 0;
@@ -239,7 +311,7 @@ class _QuizSectionQuizScreenState extends State<QuizSectionQuizScreen> {
 
   Widget build(BuildContext context) {
 
-
+    double width = MediaQuery. of(context). size. width ;
 
     return Scaffold(
       backgroundColor:  Color(0xFF6D2359),
@@ -285,8 +357,19 @@ class _QuizSectionQuizScreenState extends State<QuizSectionQuizScreen> {
                   ],
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+                child: LinearPercentIndicator(
+                  width: width- 100,
+                  lineHeight: 8.0,
+                  percent: _start/100,
+                  barRadius: Radius.circular(10),
+                  progressColor: Color(0xFF6D2359),
+                ),
+              ),
               Expanded(
                 child: PageView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
                   controller: _pageController,
                   itemCount: quizListData.length,
                   onPageChanged: (page) {
@@ -379,7 +462,16 @@ class _QuizSectionQuizScreenState extends State<QuizSectionQuizScreen> {
                                           quizListData[index]['is_answered'] =
                                           1;
                                         });
-                                      } else {}
+                                        if(questionINdex == quizListData.length - 1){
+                                          quizResult(context);
+                                        }
+                                        else{
+                                          _pageController.nextPage(
+                                            duration: const Duration(milliseconds: 300),
+                                            curve: Curves.easeIn,
+                                          );
+                                        }
+                                      }
                                     },
                                     child: Row(
                                       children: [

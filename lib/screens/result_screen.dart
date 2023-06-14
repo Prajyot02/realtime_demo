@@ -142,7 +142,7 @@ class ResultScreen extends StatelessWidget {
               height: 20,
             ),
             Text(
-              "Total Omitted Questions : $ommitedQuestion",
+              "Total Unattempted Questions : $ommitedQuestion",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
