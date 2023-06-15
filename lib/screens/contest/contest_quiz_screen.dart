@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:realtime_demo/screens/contest/contest_result_screen.dart';
 import 'package:realtime_demo/screens/result_screen.dart';
 
 import '../../models/contest_model.dart';
@@ -232,7 +233,8 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
       userPercentage = ((totalRight / quizListData.length) * 100).round();
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-            builder: (context) => ResultScreen(
+            builder: (context) => ContestResultScreen(
+              contestId: contestId,
               userPercentage: userPercentage,
               totalRight: totalRight,
               wrongQ: wrongQ,
@@ -443,7 +445,7 @@ class _ContestQuizScreenState extends State<ContestQuizScreen> {
                               //       )
                               //           : SizedBox(height: 10), // Empty SizedBox if imgurl is null
                               //
-                              //       height: 150,
+                              //       heig ht: 150,
                               //       width: 200,
                               //       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
                               //     ),

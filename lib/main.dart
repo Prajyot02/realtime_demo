@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:realtime_demo/screens/quiz/contest_carousel.dart';
+import 'package:realtime_demo/screens/contest/contest_carousel_unused.dart';
 import 'package:realtime_demo/screens/quiz/random_contest.dart';
 import 'package:realtime_demo/screens/read_examples.dart';
 import 'package:realtime_demo/screens/test/test_random.dart';

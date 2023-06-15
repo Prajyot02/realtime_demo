@@ -399,139 +399,141 @@ class _DashBoardPageState extends State<DashBoardPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 15,top: 2),
-              child: SizedBox(
-                height: 208 * numberOfIds +10,
-                width: width,
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.5,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 0,
-                  children: [
-                    ...quizSectionData.map((e) =>
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 8),
-                          child: GestureDetector(
-                            onTap: () {
-                              selectedQuizSectionId = e['quizSectionId'];
-                              description = e['description'];
-                              displayName = e['name'];
+              padding: const EdgeInsets.only(left: 15,top: 0),
+              child: SingleChildScrollView(
+                child: SizedBox(
+                  height: 208 * numberOfIds +1,
+                  width: width,
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    childAspectRatio: 1.5,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 0,
+                    children: [
+                      ...quizSectionData.map((e) =>
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 8),
+                            child: GestureDetector(
+                              onTap: () {
+                                selectedQuizSectionId = e['quizSectionId'];
+                                description = e['description'];
+                                displayName = e['name'];
 
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => QuizIntroScreen(quizSectionId: selectedQuizSectionId, description: description, displayName: displayName,),
-                                ),
-                              );
-                            },
-                            child:  SizedBox(
-                                width: 183,
-                                height: 118,
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => QuizIntroScreen(quizSectionId: selectedQuizSectionId, description: description, displayName: displayName,),
+                                  ),
+                                );
+                              },
+                              child:  SizedBox(
+                                  width: 183,
+                                  height: 118,
 
-                                child: Stack(
-                                    children: <Widget>[
-                                      Positioned(
-                                          top: 0,
-                                          left: 0,
-                                          child: Container(
-                                              width: 183,
-                                              height: 118,
-                                              decoration: BoxDecoration(
-                                                borderRadius : BorderRadius.only(
-                                                  topLeft: Radius.circular(8),
-                                                  topRight: Radius.circular(8),
-                                                  bottomLeft: Radius.circular(8),
-                                                  bottomRight: Radius.circular(8),
-                                                ),
-                                                boxShadow : [
-                                                  BoxShadow(
-                                                      color: Color.fromRGBO(0, 0, 0, 0.30000001192092896),
-                                                      offset: Offset(1,1),
-                                                      blurRadius: 2
-                                                  )],
-                                                color :hexToColor(e['color']),
-                                              )
-                                          )
-                                      ),
-                                      Positioned(
-                                          top: 11,
-                                          left: 104,
-                                          child: Container(
-                                              width: 68,
-                                              height: 68,
-                                              decoration: BoxDecoration(
-                                                color : Color.fromRGBO(0, 0, 0, 0.20000000298023224),
-                                                borderRadius : BorderRadius.all(Radius.elliptical(68, 68)),
-                                              )
-                                          )
-                                      ),
-                                      // Positioned(
-                                      //   top: 11,
-                                      //   left: 104,
-                                      //   child: Container(
-                                      //     child:
-                                      //     Image.asset('assets/images/sample.png',
-                                      //       height: 200.0,
-                                      //       width: 200.0,
-                                      //       fit: BoxFit.cover,
-                                      //     ),
-                                      //   ),
-                                      // ),
-                                      Positioned(
-                                          top: 29,
-                                          left: 122,
-                                          child: Container(
-                                              width: 32,
-                                              height: 32,
-                                              decoration: BoxDecoration(
-                                                color : Colors.transparent,
-                                              ),
-                                              child: Stack(
-                                                  children: <Widget>[
-                                                    // Positioned(
-                                                    //     top: 4,
-                                                    //     left: 6,
-                                                    //     child: SvgPicture.asset(
-                                                    //         'assets/images/vector2.svg',
-                                                    //         semanticsLabel: 'vector'
-                                                    //     ),
-                                                    // ),
-                                                    Positioned(
-                                                      top: 3,
-                                                      left: 5,
-                                                      child: SvgPicture.asset(
-                                                          'assets/images/vector2.svg',
-                                                          semanticsLabel: 'vector'
-                                                      ),
-                                                    ),
-                                                  ]
-                                              )
-                                          )
-                                      ),
-                                      Positioned(
-                                        top: 85,
-                                        left: 16,
-                                        child: Text(e['quizSectionId'], textAlign: TextAlign.left,
-                                            style: GoogleFonts.inter(
-                                                color: Color.fromRGBO(0, 0, 0, 1),
-                                                fontSize: 20,
-                                                letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                                                fontWeight: FontWeight.bold,
-                                                height: 1
+                                  child: Stack(
+                                      children: <Widget>[
+                                        Positioned(
+                                            top: 0,
+                                            left: 0,
+                                            child: Container(
+                                                width: 183,
+                                                height: 118,
+                                                decoration: BoxDecoration(
+                                                  borderRadius : BorderRadius.only(
+                                                    topLeft: Radius.circular(8),
+                                                    topRight: Radius.circular(8),
+                                                    bottomLeft: Radius.circular(8),
+                                                    bottomRight: Radius.circular(8),
+                                                  ),
+                                                  boxShadow : [
+                                                    BoxShadow(
+                                                        color: Color.fromRGBO(0, 0, 0, 0.30000001192092896),
+                                                        offset: Offset(1,1),
+                                                        blurRadius: 2
+                                                    )],
+                                                  color :hexToColor(e['color']),
+                                                )
                                             )
                                         ),
-                                      ),
-                                    ]
-                                )
-                            ),
-                            // Card(
-                            //   color: Colors.amber,
-                            //   child: Text(e['subject_name'],) ,
-                            // ),
-                          ) ,
-                        ))
-                  ],
+                                        Positioned(
+                                            top: 11,
+                                            left: 104,
+                                            child: Container(
+                                                width: 68,
+                                                height: 68,
+                                                decoration: BoxDecoration(
+                                                  color : Color.fromRGBO(0, 0, 0, 0.20000000298023224),
+                                                  borderRadius : BorderRadius.all(Radius.elliptical(68, 68)),
+                                                )
+                                            )
+                                        ),
+                                        // Positioned(
+                                        //   top: 11,
+                                        //   left: 104,
+                                        //   child: Container(
+                                        //     child:
+                                        //     Image.asset('assets/images/sample.png',
+                                        //       height: 200.0,
+                                        //       width: 200.0,
+                                        //       fit: BoxFit.cover,
+                                        //     ),
+                                        //   ),
+                                        // ),
+                                        Positioned(
+                                            top: 29,
+                                            left: 122,
+                                            child: Container(
+                                                width: 32,
+                                                height: 32,
+                                                decoration: BoxDecoration(
+                                                  color : Colors.transparent,
+                                                ),
+                                                child: Stack(
+                                                    children: <Widget>[
+                                                      // Positioned(
+                                                      //     top: 4,
+                                                      //     left: 6,
+                                                      //     child: SvgPicture.asset(
+                                                      //         'assets/images/vector2.svg',
+                                                      //         semanticsLabel: 'vector'
+                                                      //     ),
+                                                      // ),
+                                                      Positioned(
+                                                        top: 3,
+                                                        left: 5,
+                                                        child: SvgPicture.asset(
+                                                            'assets/images/vector2.svg',
+                                                            semanticsLabel: 'vector'
+                                                        ),
+                                                      ),
+                                                    ]
+                                                )
+                                            )
+                                        ),
+                                        Positioned(
+                                          top: 85,
+                                          left: 16,
+                                          child: Text(e['quizSectionId'], textAlign: TextAlign.left,
+                                              style: GoogleFonts.inter(
+                                                  color: Color.fromRGBO(0, 0, 0, 1),
+                                                  fontSize: 20,
+                                                  letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                                                  fontWeight: FontWeight.bold,
+                                                  height: 1
+                                              )
+                                          ),
+                                        ),
+                                      ]
+                                  )
+                              ),
+                              // Card(
+                              //   color: Colors.amber,
+                              //   child: Text(e['subject_name'],) ,
+                              // ),
+                            ) ,
+                          ))
+                    ],
+                  ),
                 ),
               ),
             ),

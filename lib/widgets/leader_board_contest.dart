@@ -5,67 +5,87 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ContestLeaderBoardCard extends StatefulWidget {
-  var contestId;
 
-  ContestLeaderBoardCard({super.key, required this.contestId});
+  final String contestId;
 
+  const ContestLeaderBoardCard({
+    super.key,
+    required this.contestId,
+  });
 
   @override
   State<ContestLeaderBoardCard> createState() => _ContestLeaderBoardCardState();
-
 }
+
 
 class _ContestLeaderBoardCardState extends State<ContestLeaderBoardCard> {
 
+  List<Map<String, dynamic>> topUsers = [];
+  bool isDataFetched = false;
 
-  void incrementCoins(String uid, int incrementAmount) async {
-    final userRef = FirebaseDatabase.instance.ref().child('userInfo').child(uid).child('coins');
+  late String contestId;
 
-    // Retrieve the current value of coins
-    // final snapshot = await userRef.once();
+
+  Future<String> fetchName(String uid) async {
+    final userRef = FirebaseDatabase
+        .instance.ref()
+        .child('userInfo')
+        .child(uid)
+        .child('fname');
+
     DatabaseEvent event = await userRef.once();
-    final int currentCoins = event.snapshot.value as int;
-
-    // Increment the coins value
-    final int newCoins = currentCoins + incrementAmount;
-
-    // Update the new value in the database
-    await userRef.set(newCoins);
+    String data = event.snapshot.value as  String;
+    print (data);
+    return data;
   }
 
-
-
-  Future<void> getTopUsers(int limit) async {
-    DatabaseReference userRef = FirebaseDatabase.instance.ref().child('userInfo');
+  Future<List<Map<String, dynamic>>> getLeaders(int limit,String contestId) async {
+    final leaderboardref = FirebaseDatabase
+        .instance.ref()
+        .child('contestInfo')
+        .child(contestId)
+        .child('leaderboard')
+        .limitToLast(limit)
+        .orderByChild('coins');
 
     List<Map<String, dynamic>> topUsers = [];
 
-    userRef.orderByChild('coins')
-        .limitToLast(limit)
-        .once()
-        .then((DataSnapshot snapshot) async {
+    DatabaseEvent event = await leaderboardref.once();
+    Map<dynamic, dynamic>? data = event.snapshot.value as  Map<dynamic, dynamic>?;
+    print('These are top 2 people: $data');
+    if (data != null) {
+      data.forEach((key, value) {
+        final coins = value['coins'] ;
+        final firstname = key.toString();
 
-      if (snapshot.value != null) {
-        Map<dynamic, dynamic>? usersData = snapshot.value as Map<dynamic, dynamic>?;
-
-
-        // Sort the users based on coins in descending order
-        List<MapEntry<dynamic, dynamic>> sortedUsers = usersData!.entries.toList()
-          ..sort((a, b) => b.value['coins'].compareTo(a.value['coins']));
-
-        // Retrieve the top users
-        List<MapEntry<dynamic, dynamic>> topUsers = sortedUsers.sublist(0, limit);
-
-        // Print or process the top users
-        topUsers.forEach((user) {
-          print('User: ${user.key}');
-          print('Coins: ${user.value['coins']}');
-        });
-      } else {
-        print('No users found');
+        print('coins: $coins');
+        print('Name: $firstname');
+        final formattedData = {
+          "name": firstname,
+          "coins": coins,
+        };
+        topUsers.add(formattedData);
+        // print('added $formattedData');
       }
-    } as FutureOr Function(DatabaseEvent value)).catchError((error) {
-      print('Error retrieving top users: $error');
+      );
+    }
+    isDataFetched = true;
+    return topUsers;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    contestId = widget.contestId;
+    fetchTopUsers(contestId);
+  }
+
+
+  Future<void> fetchTopUsers(String contestId) async {
+    List<Map<String, dynamic>> users = await getLeaders(3,contestId); // Adjust the limit as per your requirement
+    setState(() {
+      topUsers = users;
+      isDataFetched = true;
     });
   }
 
@@ -75,6 +95,15 @@ class _ContestLeaderBoardCardState extends State<ContestLeaderBoardCard> {
 
   @override
   Widget build(BuildContext context) {
+
+    double width = MediaQuery. of(context). size. width ;
+    double height = MediaQuery. of(context). size. height ;
+
+    if (!isDataFetched) {
+      // If the data has not been fetched yet, call fetchTopUsers() to retrieve it
+      // fetchTopUsers();
+      return Center(child: CircularProgressIndicator()); // Show a loading indicator
+    }
     return
       Padding(
         padding: const EdgeInsets.only(left: 15,),
@@ -112,287 +141,602 @@ class _ContestLeaderBoardCardState extends State<ContestLeaderBoardCard> {
             ),
           ),
           child:
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10 ),
-                child: Column(
+          Stack(
+              children:[
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 5),
-                      child: Text('2',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color.fromRGBO(255, 255, 255, 1),
-                          // fontFamily: 'Inter',
-                          fontSize: 16,
-                          letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                          fontWeight: FontWeight.bold,
-                          // height: 1
-                        ),
-                      ),
-                    ),
-                    Container(
-                        width: 78,
-                        height: 78,
-                        decoration: BoxDecoration(
-                          boxShadow : [
-                            BoxShadow(
-                                color: Color.fromRGBO(176, 109, 228, 1),
-                                offset: Offset(0,0),
-                                blurRadius: 23
-                            )],
-                          color : Color.fromRGBO(217, 217, 217, 1),
-                          border : Border.all(
-                            color: Color.fromRGBO(165, 107, 227, 1),
-                            width: 4,
-                          ),
-                          image : DecorationImage(
-                              image: AssetImage('assets/images/contestant.jpg'),
-                              fit: BoxFit.fitWidth
-                          ),
-                          borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
-                        )
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: Text('Akshay Kanade',
-                          textAlign: TextAlign.left,
-                          style:
-                          GoogleFonts.inter(
-                              color: Color.fromRGBO(0, 0, 0, 1),
-                              fontSize: 15,
-                              letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                              fontWeight: FontWeight.bold,
-                              height: 1
-                          )
-                        // TextStyle(
-                        //     color: Color.fromRGBO(0, 0, 0, 1),
-                        //     fontFamily: 'Inter',
-                        //     fontSize: 15,
-                        //     letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                        //     fontWeight: FontWeight.bold,
-                        //     height: 1
-                        // ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text('#125 pts', textAlign: TextAlign.left, style: TextStyle(
-                          color: Color.fromRGBO(255, 255, 255, 1),
-                          fontFamily: 'Inter',
-                          fontSize: 12,
-                          letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                          fontWeight: FontWeight.normal,
-                          height: 1
-                      ),),
-                    )
-                  ],
-                ),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 5),
-                          child: Text('1',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color.fromRGBO(255, 255, 255, 1),
-                              // fontFamily: 'Inter',
-                              fontSize: 16,
-                              letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                              fontWeight: FontWeight.bold,
-                              // height: 1
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 5),
+                            child: Text('2',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color.fromRGBO(255, 255, 255, 1),
+                                // fontFamily: 'Inter',
+                                fontSize: 16,
+                                letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                                fontWeight: FontWeight.bold,
+                                // height: 1
+                              ),
                             ),
                           ),
-                        ),
-                        Container(
-                            width: 98,
-                            height: 98,
-                            decoration: BoxDecoration(
-                              boxShadow : [
-                                BoxShadow(
-                                    color: Color.fromRGBO(176, 109, 228, 1),
-                                    offset: Offset(0,0),
-                                    blurRadius: 23
-                                )],
-                              color : Color.fromRGBO(217, 217, 217, 1),
-                              border : Border.all(
-                                color: Color.fromRGBO(165, 107, 227, 1),
-                                width: 4,
-                              ),
-                              image : DecorationImage(
-                                  image: AssetImage('assets/images/contestant.jpg'),
-                                  fit: BoxFit.fitWidth
-                              ),
-                              borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
-                            )
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Text('Aneesh Anchan',
-                              textAlign: TextAlign.left,
-                              style:
-                              GoogleFonts.inter(
-                                  color: Colors.black,
-                                  fontSize: 15,
-                                  letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1
+                          Container(
+                              width: 78,
+                              height: 78,
+                              decoration: BoxDecoration(
+                                boxShadow : [
+                                  BoxShadow(
+                                      color: Color.fromRGBO(176, 109, 228, 1),
+                                      offset: Offset(0,0),
+                                      blurRadius: 23
+                                  )],
+                                color : Color.fromRGBO(217, 217, 217, 1),
+                                border : Border.all(
+                                  color: Color.fromRGBO(165, 107, 227, 1),
+                                  width: 4,
+                                ),
+                                image : DecorationImage(
+                                    image: AssetImage('assets/images/contestant.jpg'),
+                                    fit: BoxFit.fitWidth
+                                ),
+                                borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
                               )
-                            //   TextStyle(
-                            //     color: Color.fromRGBO(0, 0, 0, 1),
-                            //     fontFamily: 'Inter',
-                            //     fontSize: 15,
-                            //     letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                            //     fontWeight: FontWeight.bold,
-                            //     height: 1
-                            // ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Text('#125 pts',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Text(topUsers[0]['name'],
+                                textAlign: TextAlign.left,
+                                style:
+                                GoogleFonts.inter(
+                                    color: Color.fromRGBO(0, 0, 0, 1),
+                                    fontSize: 15,
+                                    letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1
+                                )
+                              // TextStyle(
+                              //     color: Color.fromRGBO(0, 0, 0, 1),
+                              //     fontFamily: 'Inter',
+                              //     fontSize: 15,
+                              //     letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                              //     fontWeight: FontWeight.bold,
+                              //     height: 1
+                              // ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text('# '+topUsers[0]['coins'].toString()+'pts', textAlign: TextAlign.left, style: TextStyle(
                                 color: Color.fromRGBO(255, 255, 255, 1),
                                 fontFamily: 'Inter',
                                 fontSize: 12,
                                 letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
                                 fontWeight: FontWeight.normal,
                                 height: 1
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              image : DecorationImage(
-                                  image: AssetImage('assets/images/chart_horizontal.png'),
-                                  fit: BoxFit.fitWidth
-                              ),
-                              borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
-                            )
-                        ),
-                        Text('Leaderboard', textAlign: TextAlign.left,
-                          style:
-                          GoogleFonts.inter(
-                            fontStyle: FontStyle.normal,
-                            fontSize: 16 , fontWeight: FontWeight.bold,
-                            color: Color.fromRGBO(173, 105, 227, 1.0),),
-                          //     TextStyle(
-                          //     // color: Color.fromRGBO(123, 36, 191, 1),
-                          //     // fontFamily:
-                          //     // fontSize: 16,
-                          //     // letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                          //     // fontWeight: FontWeight.normal,
-                          //     // height: 1
-                          // ),
-                        ),
-
-                      ],
-                    ),
-                  )
-
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 5),
-                      child: Text('3',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color.fromRGBO(255, 255, 255, 1),
-                          // fontFamily: 'Inter',
-                          fontSize: 16,
-                          letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                          fontWeight: FontWeight.bold,
-                          // height: 1
-                        ),
+                            ),),
+                          )
+                        ],
                       ),
                     ),
-                    Container(
-                        width: 78,
-                        height: 78,
-                        decoration: BoxDecoration(
-                          boxShadow : [
-                            BoxShadow(
-                                color: Color.fromRGBO(176, 109, 228, 1),
-                                offset: Offset(0,0),
-                                blurRadius: 23
-                            )],
-                          color : Color.fromRGBO(217, 217, 217, 1),
-                          border : Border.all(
-                            color: Color.fromRGBO(165, 107, 227, 1),
-                            width: 4,
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 5),
+                                child: Text('1',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Color.fromRGBO(255, 255, 255, 1),
+                                    // fontFamily: 'Inter',
+                                    fontSize: 16,
+                                    letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                                    fontWeight: FontWeight.bold,
+                                    // height: 1
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                  width: 98,
+                                  height: 98,
+                                  decoration: BoxDecoration(
+                                    boxShadow : [
+                                      BoxShadow(
+                                          color: Color.fromRGBO(176, 109, 228, 1),
+                                          offset: Offset(0,0),
+                                          blurRadius: 23
+                                      )],
+                                    color : Color.fromRGBO(217, 217, 217, 1),
+                                    border : Border.all(
+                                      color: Color.fromRGBO(165, 107, 227, 1),
+                                      width: 4,
+                                    ),
+                                    image : DecorationImage(
+                                        image: AssetImage('assets/images/contestant.jpg'),
+                                        fit: BoxFit.fitWidth
+                                    ),
+                                    borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
+                                  )
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 5),
+                                child: Text(topUsers[1]['name'],
+                                    textAlign: TextAlign.left,
+                                    style:
+                                    GoogleFonts.inter(
+                                        color: Colors.black,
+                                        fontSize: 15,
+                                        letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1
+                                    )
+                                  //   TextStyle(
+                                  //     color: Color.fromRGBO(0, 0, 0, 1),
+                                  //     fontFamily: 'Inter',
+                                  //     fontSize: 15,
+                                  //     letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                                  //     fontWeight: FontWeight.bold,
+                                  //     height: 1
+                                  // ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Text('# '+topUsers[1]['coins'].toString()+'pts',
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                      color: Color.fromRGBO(255, 255, 255, 1),
+                                      fontFamily: 'Inter',
+                                      fontSize: 12,
+                                      letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                                      fontWeight: FontWeight.normal,
+                                      height: 1
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    image : DecorationImage(
+                                        image: AssetImage('assets/images/chart_horizontal.png'),
+                                        fit: BoxFit.fitWidth
+                                    ),
+                                    borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
+                                  )
+                              ),
+                              Text('Leaderboard', textAlign: TextAlign.left,
+                                style:
+                                GoogleFonts.inter(
+                                  fontStyle: FontStyle.normal,
+                                  fontSize: 16 , fontWeight: FontWeight.bold,
+                                  color: Color.fromRGBO(173, 105, 227, 1.0),),
+                                //     TextStyle(
+                                //     // color: Color.fromRGBO(123, 36, 191, 1),
+                                //     // fontFamily:
+                                //     // fontSize: 16,
+                                //     // letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                                //     // fontWeight: FontWeight.normal,
+                                //     // height: 1
+                                // ),
+                              ),
+
+                            ],
+                          ),
+                        )
+
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 5),
+                            child: Text('3',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color.fromRGBO(255, 255, 255, 1),
+                                // fontFamily: 'Inter',
+                                fontSize: 16,
+                                letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                                fontWeight: FontWeight.bold,
+                                // height: 1
+                              ),
+                            ),
+                          ),
+                          Container(
+                              width: 78,
+                              height: 78,
+                              decoration: BoxDecoration(
+                                boxShadow : [
+                                  BoxShadow(
+                                      color: Color.fromRGBO(176, 109, 228, 1),
+                                      offset: Offset(0,0),
+                                      blurRadius: 23
+                                  )],
+                                color : Color.fromRGBO(217, 217, 217, 1),
+                                border : Border.all(
+                                  color: Color.fromRGBO(165, 107, 227, 1),
+                                  width: 4,
+                                ),
+                                image : DecorationImage(
+                                    image: AssetImage('assets/images/contestant.jpg'),
+                                    fit: BoxFit.fitWidth
+                                ),
+                                borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
+                              )
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Text(topUsers[2]['name'],
+                                textAlign: TextAlign.left,
+                                style:
+                                GoogleFonts.inter(
+                                    color: Color.fromRGBO(0, 0, 0, 1),
+                                    fontSize: 15,
+                                    letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1
+                                )
+                              // TextStyle(
+                              //     color: Color.fromRGBO(0, 0, 0, 1),
+                              //     fontFamily: 'Inter',
+                              //     fontSize: 15,
+                              //     letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                              //     fontWeight: FontWeight.bold,
+                              //     height: 1
+                              // ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text('# '+topUsers[2]['coins'].toString()+'pts', textAlign: TextAlign.left, style: TextStyle(
+                                color: Color.fromRGBO(255, 255, 255, 1),
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                                letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+                                fontWeight: FontWeight.normal,
+                                height: 1
+                            ),),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Positioned(
+                    left:0.5 *width,
+                    top: 20,
+                    child:
+                    Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
                           image : DecorationImage(
-                              image: AssetImage('assets/images/contestant.jpg'),
+                              image: AssetImage('assets/images/crown.png'),
                               fit: BoxFit.fitWidth
                           ),
                           borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
                         )
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: Text('Alisa Brown',
-                          textAlign: TextAlign.left,
-                          style:
-                          GoogleFonts.inter(
-                              color: Color.fromRGBO(0, 0, 0, 1),
-                              fontSize: 15,
-                              letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                              fontWeight: FontWeight.bold,
-                              height: 1
-                          )
-                        // TextStyle(
-                        //     color: Color.fromRGBO(0, 0, 0, 1),
-                        //     fontFamily: 'Inter',
-                        //     fontSize: 15,
-                        //     letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                        //     fontWeight: FontWeight.bold,
-                        //     height: 1
-                        // ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text('#125 pts', textAlign: TextAlign.left, style: TextStyle(
-                          color: Color.fromRGBO(255, 255, 255, 1),
-                          fontFamily: 'Inter',
-                          fontSize: 12,
-                          letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
-                          fontWeight: FontWeight.normal,
-                          height: 1
-                      ),),
                     )
-                  ],
                 ),
-              ),
-            ],
+              ]
           ),
+          // Stack(
+          //   children: [
+          //     Positioned(
+          //         left:width*0.3333 ,
+          //         top: 13,
+          //         child:
+          //         Column(
+          //           mainAxisAlignment: MainAxisAlignment.center,
+          //           children: [
+          //             Padding(
+          //               padding: const EdgeInsets.only(bottom: 5),
+          //               child: Text('1',
+          //                 textAlign: TextAlign.center,
+          //                 style: TextStyle(
+          //                   color: Color.fromRGBO(255, 255, 255, 1),
+          //                   // fontFamily: 'Inter',
+          //                   fontSize: 16,
+          //                   letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                   fontWeight: FontWeight.bold,
+          //                   // height: 1
+          //                 ),
+          //               ),
+          //             ),
+          //             Container(
+          //                 width: 98,
+          //                 height: 98,
+          //                 decoration: BoxDecoration(
+          //                   boxShadow : [
+          //                     BoxShadow(
+          //                         color: Color.fromRGBO(176, 109, 228, 1),
+          //                         offset: Offset(0,0),
+          //                         blurRadius: 23
+          //                     )],
+          //                   color : Color.fromRGBO(217, 217, 217, 1),
+          //                   border : Border.all(
+          //                     color: Color.fromRGBO(165, 107, 227, 1),
+          //                     width: 4,
+          //                   ),
+          //                   image : DecorationImage(
+          //                       image: AssetImage('assets/images/contestant.jpg'),
+          //                       fit: BoxFit.fitWidth
+          //                   ),
+          //                   borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
+          //                 )
+          //             ),
+          //             Padding(
+          //               padding: const EdgeInsets.only(top: 5),
+          //               child: Text('Aneesh Anchan',
+          //                   textAlign: TextAlign.left,
+          //                   style:
+          //                   GoogleFonts.inter(
+          //                       color: Colors.black,
+          //                       fontSize: 15,
+          //                       letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                       fontWeight: FontWeight.bold,
+          //                       height: 1
+          //                   )
+          //                 //   TextStyle(
+          //                 //     color: Color.fromRGBO(0, 0, 0, 1),
+          //                 //     fontFamily: 'Inter',
+          //                 //     fontSize: 15,
+          //                 //     letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                 //     fontWeight: FontWeight.bold,
+          //                 //     height: 1
+          //                 // ),
+          //               ),
+          //             ),
+          //             Padding(
+          //               padding: const EdgeInsets.all(5.0),
+          //               child: Text('#125 pts',
+          //                 textAlign: TextAlign.left,
+          //                 style: TextStyle(
+          //                     color: Color.fromRGBO(255, 255, 255, 1),
+          //                     fontFamily: 'Inter',
+          //                     fontSize: 12,
+          //                     letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                     fontWeight: FontWeight.normal,
+          //                     height: 1
+          //                 ),
+          //               ),
+          //             )
+          //           ],
+          //         )
+          //     ),
+          //     Positioned(
+          //         left:width*0.50 ,
+          //         top: 25,
+          //         child:
+          //         Container(
+          //             width: 41,
+          //             height: 40,
+          //             decoration: BoxDecoration(
+          //               image : DecorationImage(
+          //                   image: AssetImage('assets/images/crown.png'),
+          //                   fit: BoxFit.fitWidth
+          //               ),
+          //               borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
+          //             )
+          //         )
+          //     ),
+          //     Positioned(
+          //         left:width*0.06 ,
+          //         top: 80,
+          //         child:
+          //         Column(
+          //           mainAxisAlignment: MainAxisAlignment.center,
+          //           children: [
+          //             Padding(
+          //               padding: const EdgeInsets.only(bottom: 5),
+          //               child: Text('2',
+          //                 textAlign: TextAlign.center,
+          //                 style: TextStyle(
+          //                   color: Color.fromRGBO(255, 255, 255, 1),
+          //                   // fontFamily: 'Inter',
+          //                   fontSize: 16,
+          //                   letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                   fontWeight: FontWeight.bold,
+          //                   // height: 1
+          //                 ),
+          //               ),
+          //             ),
+          //             Container(
+          //                 width: 78,
+          //                 height: 78,
+          //                 decoration: BoxDecoration(
+          //                   boxShadow : [
+          //                     BoxShadow(
+          //                         color: Color.fromRGBO(176, 109, 228, 1),
+          //                         offset: Offset(0,0),
+          //                         blurRadius: 23
+          //                     )],
+          //                   color : Color.fromRGBO(217, 217, 217, 1),
+          //                   border : Border.all(
+          //                     color: Color.fromRGBO(165, 107, 227, 1),
+          //                     width: 4,
+          //                   ),
+          //                   image : DecorationImage(
+          //                       image: AssetImage('assets/images/contestant.jpg'),
+          //                       fit: BoxFit.fitWidth
+          //                   ),
+          //                   borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
+          //                 )
+          //             ),
+          //             Padding(
+          //               padding: const EdgeInsets.only(top: 5),
+          //               child: Text('Akshay Kanade',
+          //                   textAlign: TextAlign.left,
+          //                   style:
+          //                   GoogleFonts.inter(
+          //                       color: Color.fromRGBO(0, 0, 0, 1),
+          //                       fontSize: 15,
+          //                       letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                       fontWeight: FontWeight.bold,
+          //                       height: 1
+          //                   )
+          //                 // TextStyle(
+          //                 //     color: Color.fromRGBO(0, 0, 0, 1),
+          //                 //     fontFamily: 'Inter',
+          //                 //     fontSize: 15,
+          //                 //     letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                 //     fontWeight: FontWeight.bold,
+          //                 //     height: 1
+          //                 // ),
+          //               ),
+          //             ),
+          //             Padding(
+          //               padding: const EdgeInsets.all(5.0),
+          //               child: Text('#125 pts', textAlign: TextAlign.left, style: TextStyle(
+          //                   color: Color.fromRGBO(255, 255, 255, 1),
+          //                   fontFamily: 'Inter',
+          //                   fontSize: 12,
+          //                   letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                   fontWeight: FontWeight.normal,
+          //                   height: 1
+          //               ),),
+          //             )
+          //           ],
+          //         )
+          //     ),
+          //     Positioned(
+          //         left:width*0.60 ,
+          //         top: 80,
+          //         child:
+          //         Column(
+          //           mainAxisAlignment: MainAxisAlignment.center,
+          //           children: [
+          //             Padding(
+          //               padding: const EdgeInsets.only(bottom: 5),
+          //               child: Text('3',
+          //                   textAlign: TextAlign.center,
+          //                   style:
+          //                   GoogleFonts.inter(
+          //                       color: Colors.white,
+          //                       fontSize: 15,
+          //                       letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                       fontWeight: FontWeight.bold,
+          //                       height: 1
+          //                   )
+          //                 // TextStyle(
+          //                 //   color: Color.fromRGBO(255, 255, 255, 1),
+          //                 //   // fontFamily: 'Inter',
+          //                 //   fontSize: 16,
+          //                 //   letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                 //   fontWeight: FontWeight.bold,
+          //                 //   // height: 1
+          //                 // ),
+          //               ),
+          //             ),
+          //             Container(
+          //                 width: 78,
+          //                 height: 78,
+          //                 decoration: BoxDecoration(
+          //                   boxShadow : [
+          //                     BoxShadow(
+          //                         color: Color.fromRGBO(176, 109, 228, 1),
+          //                         offset: Offset(0,0),
+          //                         blurRadius: 23
+          //                     )],
+          //                   color : Color.fromRGBO(217, 217, 217, 1),
+          //                   border : Border.all(
+          //                     color: Color.fromRGBO(165, 107, 227, 1),
+          //                     width: 4,
+          //                   ),
+          //                   image : DecorationImage(
+          //                       image: AssetImage('assets/images/contestant.jpg'),
+          //                       fit: BoxFit.fitWidth
+          //                   ),
+          //                   borderRadius : BorderRadius.all(Radius.elliptical(98, 98)),
+          //                 )
+          //             ),
+          //             Padding(
+          //               padding: const EdgeInsets.only(top: 5),
+          //               child: Text('Alisa Jain',
+          //                 textAlign: TextAlign.left,
+          //                 style: GoogleFonts.inter(
+          //                     color: Color.fromRGBO(0, 0, 0, 1),
+          //                     fontSize: 15,
+          //                     letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                     fontWeight: FontWeight.bold,
+          //                     height: 1
+          //                 )
+          //                 //   TextStyle(
+          //                 //       fontFamily: 'Inter',
+          //                 //     color: Color.fromRGBO(0, 0, 0, 1),
+          //                 //     fontSize: 15,
+          //                 //     letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                 //     fontWeight: FontWeight.bold,
+          //                 //     height: 1
+          //                 // )
+          //                 ,),
+          //             ),
+          //             Padding(
+          //               padding: const EdgeInsets.all(5.0),
+          //               child: Text('#125 pts', textAlign: TextAlign.left, style: TextStyle(
+          //                   color: Color.fromRGBO(255, 255, 255, 1),
+          //                   fontFamily: 'Inter',
+          //                   fontSize: 12,
+          //                   letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //                   fontWeight: FontWeight.normal,
+          //                   height: 1
+          //               ),),
+          //             )
+          //           ],
+          //         )
+          //     ),
+          //     Positioned(
+          //         left:width*0.35 ,
+          //         bottom:15,
+          //         child:
+          //         Row(
+          //           mainAxisAlignment: MainAxisAlignment.center,
+          //           children: [
+          //             Text('Leaderboard', textAlign: TextAlign.left,
+          //               style:
+          //               GoogleFonts.inter(
+          //                 fontStyle: FontStyle.normal,
+          //                 fontSize: 16 , fontWeight: FontWeight.bold,
+          //                 color: Color.fromRGBO(173, 105, 227, 1.0),),
+          //               //     TextStyle(
+          //               //     // color: Color.fromRGBO(123, 36, 191, 1),
+          //               //     // fontFamily:
+          //               //     // fontSize: 16,
+          //               //     // letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+          //               //     // fontWeight: FontWeight.normal,
+          //               //     // height: 1
+          //               // ),
+          //             ),
+          //
+          //           ],
+          //         )
+          //     ),
+          //
+          //   ],
+          //
+          // ),
         ),
       );
   }

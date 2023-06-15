@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:realtime_demo/screens/dashboard_screen.dart';
-import 'package:realtime_demo/screens/quiz/contest_carousel.dart';
+import 'package:realtime_demo/screens/contest/contest_carousel_unused.dart';
 import 'package:realtime_demo/screens/quiz/quiz_section.dart';
 import 'package:realtime_demo/screens/quiz/random_contest.dart';
 import 'package:realtime_demo/screens/read_examples.dart';
